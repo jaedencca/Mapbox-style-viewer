@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Mapbox Full-Page Map</title>
+		<!-- Mapbox GL JS CSS -->
+		<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+		<style>
+			/* Make map fill the entire page */
+			html, body {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			#map {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				width: 100%;
+			}
+
+			/* Simple UI for applying a custom style */
+			.style-ui {
+				position: absolute;
+				left: 12px;
+				top: 12px;
+				background: rgba(255,255,255,0.95);
+				border-radius: 6px;
+				padding: 8px;
+				box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+				font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+				z-index: 1;
+				min-width: 280px;
+			}
+			.style-ui input[type="text"]{
+				width: calc(100% - 90px);
+				padding: 6px 8px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+			.style-ui button{
+				padding: 6px 8px;
+				margin-left: 6px;
+			}
+			.status { font-size: 12px; margin-top: 6px; color: #333; }
+		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+
+		<div class="style-ui" role="region" aria-label="Map style controls">
+			<div style="font-weight:600;margin-bottom:6px;">Map style</div>
+			<div style="display:flex;align-items:center;gap:6px;">
+				<input id="styleInput" type="text" placeholder="Paste a Mapbox style URL (e.g. mapbox://styles/username/styleid)" />
+				<button id="applyBtn">Apply</button>
+			</div>
+			<div class="status" id="status">Default style: Mapbox Streets</div>
+		</div>
+
+		<!-- Mapbox GL JS -->
+		<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+		<script>
+			// Your Mapbox public token
+			mapboxgl.accessToken = 'pk.eyJ1IjoiamFlZGVuY2NhIiwiYSI6ImNtaGM4cDNxdDI3cHkya3B1emRxYzJuNWQifQ.GD3_Rhp6YQw5CkRSFClT0w';
+
+			// Default style (you can change this or paste a custom URL into the input)
+			const defaultStyle = 'mapbox://styles/mapbox/streets-v11';
+
+			// Initialize the map
+			const map = new mapboxgl.Map({
+				container: 'map',
+				style: defaultStyle,
+				center: [-98.5795, 39.8283], // USA center
+				zoom: 3
+			});
+
+			// Add navigation controls (zoom + rotation)
+			map.addControl(new mapboxgl.NavigationControl());
+
+			const statusEl = document.getElementById('status');
+			const styleInput = document.getElementById('styleInput');
+			const applyBtn = document.getElementById('applyBtn');
+
+			// Helper to set status text
+			function setStatus(txt, isError) {
+				statusEl.textContent = txt;
+				statusEl.style.color = isError ? '#b00020' : '#333';
+			}
+
+			applyBtn.addEventListener('click', () => {
+				const url = styleInput.value.trim();
+				if (!url) {
+					setStatus('Please paste a style URL (e.g. mapbox://styles/username/styleid)', true);
+					return;
+				}
+
+				try {
+					// Apply the custom style
+					map.setStyle(url);
+					setStatus('Applying style...');
+
+					// Listen for style load success/failure
+					const onStyleData = () => {
+						setStatus('Style applied: ' + url);
+						map.off('styledata', onStyleData);
+					};
+					map.on('styledata', onStyleData);
+
+					// If there's an error loading tiles, show a message
+					const onError = (e) => {
+						console.error('Map error', e);
+						setStatus('Error applying style. Check console and style URL.', true);
+						map.off('error', onError);
+					};
+					map.on('error', onError);
+				} catch (err) {
+					console.error(err);
+					setStatus('Invalid style URL or error applying style.', true);
+				}
+			});
+
+			// Allow pressing Enter in the input to apply
+			styleInput.addEventListener('keydown', (ev) => {
+				if (ev.key === 'Enter') { applyBtn.click(); }
+			});
+
+			// Pre-fill the input with an example Mapbox style URL (optional)
+			styleInput.value = '';
+		</script>
+	</body>
+</html>
+
