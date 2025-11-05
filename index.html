@@ -7,7 +7,6 @@
 		<!-- Mapbox GL JS CSS -->
 		<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
 		<style>
-			/* Make map fill the entire page */
 			html, body {
 				height: 100%;
 				margin: 0;
@@ -20,7 +19,7 @@
 				width: 100%;
 			}
 
-			/* Simple UI for applying a custom style */
+			/* UI for applying style */
 			.style-ui {
 				position: absolute;
 				left: 12px;
@@ -61,28 +60,25 @@
 		<!-- Mapbox GL JS -->
 		<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
 		<script>
-			// Your Mapbox public token
-			mapboxgl.accessToken = 'pk.eyJ1IjoiamFlZGVuY2NhIiwiYSI6ImNtaGM4cDNxdDI3cHkya3B1emRxYzJuNWQifQ.GD3_Rhp6YQw5CkRSFClT0w';
+			mapboxgl.accessToken = 'YOUR_API_KEY';
 
-			// Default style (you can change this or paste a custom URL into the input)
+			// Default style 
 			const defaultStyle = 'mapbox://styles/mapbox/streets-v11';
 
-			// Initialize the map
 			const map = new mapboxgl.Map({
 				container: 'map',
 				style: defaultStyle,
-				center: [-98.5795, 39.8283], // USA center
+				center: [-98.5795, 39.8283],
 				zoom: 3
 			});
 
-			// Add navigation controls (zoom + rotation)
+			// navigation controls 
 			map.addControl(new mapboxgl.NavigationControl());
 
 			const statusEl = document.getElementById('status');
 			const styleInput = document.getElementById('styleInput');
 			const applyBtn = document.getElementById('applyBtn');
 
-			// Helper to set status text
 			function setStatus(txt, isError) {
 				statusEl.textContent = txt;
 				statusEl.style.color = isError ? '#b00020' : '#333';
@@ -120,12 +116,10 @@
 				}
 			});
 
-			// Allow pressing Enter in the input to apply
 			styleInput.addEventListener('keydown', (ev) => {
 				if (ev.key === 'Enter') { applyBtn.click(); }
 			});
 
-			// Pre-fill the input with an example Mapbox style URL (optional)
 			styleInput.value = '';
 		</script>
 	</body>
